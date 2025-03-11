@@ -1,0 +1,40 @@
+---
+title: "ESM 244 - HW4"
+author: "Lauren Puffer"
+format: html
+editor: visual
+embed-resources: true
+code-fold: show
+execute: 
+  warning: false
+  message: false
+toc: TRUE
+theme: journal
+---
+
+## Overview
+
+## Data citation
+
+Data were shared by and accessed from [Columbia River DART](http://www.cbr.washington.edu/dart/query/adult_graph_text) (Data Access in Real Time), accessed January 25, 2023.
+
+## Load packages
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(here)
+library(tsibble) #make a dataframe
+library(feasts) 
+library(fable)
+```
+
+## Load data
+
+```{r}
+# load data from local file
+fish_data <- read.csv(here("data", "willamette_fish_passage.csv")) |>
+  clean_names()
+```
+
+## Exploratory Data Analysis
