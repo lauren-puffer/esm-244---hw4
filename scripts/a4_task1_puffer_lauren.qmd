@@ -27,10 +27,11 @@ Data were shared by and accessed from [Columbia River DART](http://www.cbr.washi
 ### Pseudocode
 
 1.  Load necessary packages, including fable and feast
-2.  Read in the data and use 'lubridate' to transform to month-year format
+2.  Read in the data and pivot longer to create distinct column for type and count
 3.  Put data into a tsibble table for ease of use
 4.  Conduct exploratory data analysis to look for obvious trends
-5.  Create visualizations to analyze possible seasonality and trends in time series data
+5.  Plot daily counts to look for temporal trends in data
+6.  Convert data into week-year format and plot for seasonality
 
 ## Load packages
 
@@ -43,6 +44,7 @@ library(tsibble) #make a dataframe
 library(lubridate) #used for altering time series data
 library(feasts) 
 library(fable)
+library(patchwork)
 ```
 
 ## Data wrangling
@@ -69,7 +71,7 @@ fish_ts <- fish_data_long |>
 
 ```
 
-## Exploratory Data Analysis
+## Overall Temporal Trends
 
 ```{r plot data}
 #| fig-cap: "Fig. 1 - Daily fish counts for adult Steelhead trout, jack Coho salmon, and Coho salmon observed in the Columbia River Basin."
@@ -87,17 +89,70 @@ ggplot(data = fish_ts,
 
 ```
 
-Based on the information shown in figure 1, it seems that the amount of Coho salmon in the basin spiked in the late 2000s and early 2010s. The seasonality for Stee;head and Coho salmon seem to alternate.
+Based on the information shown in figure 1, it seems that the amount of Coho salmon in the basin spiked in the late 2000s and early 2010s. The seasonality for Steelhead and Coho salmon seem to alternate. When counts for Steelhead are low or near zero, Coho counts increase.
 
 geom_stream
 
-::: panel-tabset
-### title
+## Seasonality
+
+We will make seasonality plots to see how abundances (counts) each fish type tend to behave on a year-long scale.
 
 ```{r}
-ggplot(data = fish_ts, aes(x = date, y = count)) +
+# weekly coho jack 
+jack_week <- fish_ts |> 
+  filter(type == "jack_coho") |>
+  index_by(week = ~yearweek(.)) |> #use yearweek to convert date
+  summarize(weekly_count = mean(count, na.rm = TRUE)) |>
+      ungroup() 
+
+#plots seasonal average across year
+jack_season <- jack_week|>
+  gg_season(y = weekly_count) +
   geom_line() +
-  labs(x = "Date",
-       y = "Mean daily air temperature (Celsius)\n at Toolik Station")
+  labs(x = "Month", y = "Weekly Average Count", title= "Jack Coho salmon") +
+  theme_minimal() +
+  theme(legend.position = "none") 
+
+
+#do the same for coho
+coho_week <- fish_ts |> 
+  filter(type == "coho") |>
+  index_by(week = ~yearweek(.)) |> #use yearweek to convert date
+  summarize(weekly_count = mean(count, na.rm = TRUE)) |>
+      ungroup() 
+
+#plots seasonal average across year
+coho_season <- coho_week|>
+  gg_season(y = weekly_count) +
+  geom_line() +
+  labs(x = "Month", y = "Weekly Average Count", title = "Coho salmon") +
+  theme_minimal()
+
+#do the same for steelhead
+steelhead_week <- fish_ts |> 
+  filter(type == "steelhead") |>
+  index_by(week = ~yearweek(.)) |> #use yearweek to convert date
+  summarize(weekly_count = mean(count, na.rm = TRUE)) |>
+      ungroup() 
+
+#plots seasonal average across year
+steelhead_season <- steelhead_week|>
+  gg_season(y = weekly_count) +
+  geom_line() +
+  labs(x = "Month", y = "Weekly Average Count", title = "Steelhead trout") +
+  theme_minimal() +
+    theme(legend.position = "none") 
+
+patch <- jack_season/coho_season/steelhead_season
+
+print(patch)
 ```
-:::
+
+## Annual Counts
+
+create graph that shows the count of fish by type per each year of observation.
+
+```{r}
+
+
+```
