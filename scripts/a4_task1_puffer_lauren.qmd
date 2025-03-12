@@ -52,14 +52,52 @@ library(fable)
 fish_data <- read.csv(here("data", "willamette_fish_passage.csv")) |>
   clean_names() |>
   mutate_all(~replace(., is.na(.), 0))|>  #change NA values to zeros 
-  select(date, steelhead, coho, jack_coho)
+  select(date, steelhead, coho, jack_coho)|>
+  mutate(date = mdy(date))
+
+
+#create a distinct dataframe with species in 1 column and fish count in another column  
+fish_data_long <- fish_data|> 
+  pivot_longer(cols = c(jack_coho, coho, steelhead), 
+               names_to= "type", 
+               values_to = "count")
 
 # create a tsibbble table ofr usability 
-fish_ts <- fish_data |>
-  mutate(date = mdy(date)) |>
-  as_tsibble(key = NULL, 
-             index = date)
+fish_ts <- fish_data_long |>
+  as_tsibble(key = type, #not more than one variable dertmining time indeces
+             index = date) #use date to specify time
 
 ```
 
 ## Exploratory Data Analysis
+
+```{r plot data}
+#| fig-cap: "Fig. 1 - Daily fish counts for adult Steelhead trout, jack Coho salmon, and Coho salmon observed in the Columbia River Basin."
+
+ggplot(data = fish_ts, 
+       aes(x = date, y = count, colour = type)) +
+  geom_line() +
+  labs(x = "Date", 
+       y = "Daily Counts",
+       title = "Daily Counts by Type") +
+  scale_color_manual(values = c("steelhead" = "goldenrod1", 
+                                "jack_coho" = "deeppink3", 
+                                "coho" = "chartreuse3")) +  # Custom colors
+  theme_classic()
+
+```
+
+Based on the information shown in figure 1, it seems that the amount of Coho salmon in the basin spiked in the late 2000s and early 2010s. The seasonality for Stee;head and Coho salmon seem to alternate.
+
+geom_stream
+
+::: panel-tabset
+### title
+
+```{r}
+ggplot(data = fish_ts, aes(x = date, y = count)) +
+  geom_line() +
+  labs(x = "Date",
+       y = "Mean daily air temperature (Celsius)\n at Toolik Station")
+```
+:::
