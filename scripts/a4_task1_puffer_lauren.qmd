@@ -12,11 +12,25 @@ toc: TRUE
 theme: journal
 ---
 
-## Overview
+# Overview
 
-## Data citation
+### Purpose of Analysis
 
-Data were shared by and accessed from [Columbia River DART](http://www.cbr.washington.edu/dart/query/adult_graph_text) (Data Access in Real Time), accessed January 25, 2023.
+With this analysis, we aim to assess possible temporal trends of Coho salmon, Jack Coho salmon, and Steelhead trout in the Columbia River Basin. Our analysis will use a simple data manipulation in the 'lubridate' package for compatibility with visualization tools. We will then explore patterns in seasonality and overall trends, as well as compare fish counts by month using 'ggsubseries.'
+
+### *insert photo here*
+
+### Data citation
+
+Data were shared by and accessed from [Columbia River DART](http://www.cbr.washington.edu/dart/query/adult_graph_text) (Data Access in Real Time), accessed January 25, 2023. This data comes from a collaboration of 8 entities monitoring fish populations in the Columbia Basin. Fish counts for 9 species and water temperature is recorded daily.
+
+### Pseudocode
+
+1.  Load necessary packages, including fable and feast
+2.  Read in the data and use 'lubridate' to transform to month-year format
+3.  Put data into a tsibble table for ease of use
+4.  Conduct exploratory data analysis to look for obvious trends
+5.  Create visualizations to analyze possible seasonality and trends in time series data
 
 ## Load packages
 
@@ -24,17 +38,28 @@ Data were shared by and accessed from [Columbia River DART](http://www.cbr.washi
 library(tidyverse)
 library(janitor)
 library(here)
+library(dplyr) #change NAs to zeros
 library(tsibble) #make a dataframe
+library(lubridate) #used for altering time series data
 library(feasts) 
 library(fable)
 ```
 
-## Load data
+## Data wrangling
 
-```{r}
+```{r load data and prepare for time series analysis}
 # load data from local file
 fish_data <- read.csv(here("data", "willamette_fish_passage.csv")) |>
-  clean_names()
+  clean_names() |>
+  mutate_all(~replace(., is.na(.), 0))|>  #change NA values to zeros 
+  select(date, steelhead, coho, jack_coho)
+
+# create a tsibbble table ofr usability 
+fish_ts <- fish_data |>
+  mutate(date = mdy(date)) |>
+  as_tsibble(key = NULL, 
+             index = date)
+
 ```
 
 ## Exploratory Data Analysis
