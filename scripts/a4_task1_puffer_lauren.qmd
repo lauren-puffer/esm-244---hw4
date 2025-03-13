@@ -1,5 +1,5 @@
 ---
-title: "ESM 244 - HW4"
+title: "ESM 244 - HW4 - Task 1"
 author: "Lauren Puffer"
 format: html
 editor: visual
@@ -20,7 +20,9 @@ With this analysis, we aim to assess possible temporal trends of Coho salmon, ja
 
 ### [![Male Coho Salmon (courtesy of California Sea Grant)](images/cohomale1.jpg)](https://caseagrant.ucsd.edu/russian-river-salmon-steelhead/russian-river-learning-center/salmonid-identification)
 
-### Data citation
+[Male Coho salmon (courtesy of CA Sea Grant)](https://caseagrant.ucsd.edu/russian-river-salmon-steelhead/russian-river-learning-center/salmonid-identification)
+
+### Data citation {#Male Coho salmon (Courtesy of CA Sea Grant)}
 
 Data were shared by and accessed from [Columbia River DART](http://www.cbr.washington.edu/dart/query/adult_graph_text) (Data Access in Real Time), accessed January 25, 2023. This data comes from a collaboration of 8 entities monitoring fish populations in the Columbia Basin. Fish counts for 9 species and water temperature is recorded daily.
 
