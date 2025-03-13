@@ -168,7 +168,7 @@ print(patch)
 
 ## Annual Counts
 
-In order to observe how fish abundances for jack Coho, Coho, and Steelhead are changing overtime, we will plot their abundance for each year across the 10 years of the study. We will use a stacked bar graph to illustrate these trends. \
+In order to observe how fish abundances for jack Coho, Coho, and Steelhead are changing over time, we will plot their abundance for each year across the 10 years of the study. We will use a stacked bar graph to illustrate these trends. \
 
 ```{r}
 #| fig-cap: "Fig. 3 - Annual abundances for adult jack Coho salmon, Coho salmon, and Steelhead trout observed in the Columbia River Basin across study years."
@@ -193,4 +193,14 @@ fish_year_abundance <- ggplot(fish_year, aes(x = year, y = yearly_count, fill = 
 
 ### Explanation of trends
 
--   
+-   Coho abundance seemed to increase towards the end of the study. This is consistent with the information represented in our seasonality plot. This could be the result of increased protections for the species as many populations of Coho salmon are threatened or endangered.
+
+-   When Coho abundances are higher, so are jack Coho Salmon abundances. This pattern appears to be proportional. Given that jack Coho numbers shouldn't be higher than regular Coho, it makes sense that there are almost no jacks in the years that saw lower Coho abundance.
+
+-   It is possible that Steelhead trout exhibit a cyclical pattern across year that we cannot see given the discrete amount of time that this data was collected within. The large swings in abundance between year do not show any obvious trend, but LTER could reveal different pattern that occur over a larger time scale than one decade.
+
+## Discussion
+
+Salmonids face many barriers when it comes to migration. The data collected at this fish ladder is representative of the fish that were able to make it as far as the ladder during their migration. Although we cannot say for certain what will happen to abundance of salmonids in the Columbia River Basin, the small-scale seasonal trends and temporal variation in fish types across the 10 years of this study are consistent with what we know about salmonid life history strategies. Increased protection of threatened and endangered species of Coho salmon could explain the significant increase in their abundance over time. In 2023, the fish ladder at Willamette falls saw its highest abundance of Coho salmon on record.
+
+When establishing policies to improve the overall abundances of these species, it is important to consider their life history strategies. Time-series data like this can also inform the fishing practices and natural resource use regulations of the area to minimize impact on the environment. Future analysis should explore data collected over a time period which is longer than 10 years, specifically to explain the variation in Steelhead trout.
