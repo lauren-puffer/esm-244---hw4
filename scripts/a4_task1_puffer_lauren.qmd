@@ -16,7 +16,7 @@ theme: journal
 
 ### Purpose of Analysis
 
-With this analysis, we aim to assess possible temporal trends of Coho salmon, Jack Coho salmon, and Steelhead trout in the Columbia River Basin. Our analysis will use a simple data manipulation in the 'lubridate' package for compatibility with visualization tools. We will then explore patterns in seasonality and overall trends, as well as compare fish counts by month using 'ggsubseries.'
+With this analysis, we aim to assess possible temporal trends of Coho salmon, jack Coho salmon, and Steelhead trout in the Columbia River Basin. Our analysis will use a simple data manipulation in the 'lubridate' package for compatibility with visualization tools. We will then explore patterns in seasonality and overall trends, as well as compare fish counts by month using 'ggsubseries.'
 
 ### *insert photo here*
 
@@ -27,11 +27,11 @@ Data were shared by and accessed from [Columbia River DART](http://www.cbr.washi
 ### Pseudocode
 
 1.  Load necessary packages, including fable and feast
-2.  Read in the data and pivot longer to create distinct column for type and count
-3.  Put data into a tsibble table for ease of use
-4.  Conduct exploratory data analysis to look for obvious trends
-5.  Plot daily counts to look for temporal trends in data
-6.  Convert data into week-year format and plot for seasonality
+2.  Read in the data and pivot longer to create distinct columns for type and count
+3.  Put data into a tsibble table for ease of use with time-series data
+4.  Plot daily counts of entire study to look for temporal trends in data
+5.  Convert data into week-year format and plot for seasonality
+6.  Convert data into year format and plot abundances across year
 
 ## Load packages
 
@@ -48,6 +48,8 @@ library(patchwork)
 ```
 
 ## Data wrangling
+
+Because we are working with time-series data, we need to make sure that all of our observations are in tidy form. This means NAs must be changed to zero values, each row must represent its own observation, and 'date' must be in the proper format (year-month-day).
 
 ```{r load data and prepare for time series analysis}
 # load data from local file
@@ -73,6 +75,8 @@ fish_ts <- fish_data_long |>
 
 ## Overall Temporal Trends
 
+In order to observe the general trends in the data, we must look at observations through a broader lens. For this reason, we will plot daily counts of jack Coho, Coho, and Steelhead by type across year. This will also us to make inferences about what could be governing the presence/absence and overall abundance of each fish type in the Columbia River Basin.
+
 ```{r plot data}
 #| fig-cap: "Fig. 1 - Daily fish counts for adult Steelhead trout, jack Coho salmon, and Coho salmon observed in the Columbia River Basin."
 
@@ -89,15 +93,21 @@ ggplot(data = fish_ts,
 
 ```
 
-Based on the information shown in figure 1, it seems that the amount of Coho salmon in the basin spiked in the late 2000s and early 2010s. The seasonality for Steelhead and Coho salmon seem to alternate. When counts for Steelhead are low or near zero, Coho counts increase.
+### Explanation of trends
 
-geom_stream
+-   Abundances Coho salmon in the basin spiked in the late 2000s and early 2010s. The seasonality for Steelhead and Coho salmon seem to alternate. When counts for Steelhead are low or near zero, Coho counts increase.
+
+-   Coho abundances seemed to increase over time each year, with the highest abundances occurring in the last year of the study (2010). This could be because of an increased effort to populate watersheds with hatchery-raised Coho salmon.
+
+-   Jack Coho salmon tend to have lower numbers than regular Coho salmon. This is important to their life history strategy, as jack Coho salmon are males disguised as females that "sneak in" to breed with females. If their numbers get too high, they lose their competitive edge.
 
 ## Seasonality
 
-We will make seasonality plots to see how abundances (counts) each fish type tend to behave on a year-long scale.
+We will make seasonality plots to see how abundances (counts) each fish type tend to behave on a year-long scale. For a better visualization, fish counts will be summed over each week of the study and then plotted as a line graph.
 
 ```{r}
+#| fig-cap: "Fig. 2 - Weekly abundances for adult jack Coho salmon, Coho salmon, and Steelhead trout observed in the Columbia River Basin across study years. Note: Range of count values varies. Data across type are not scaled."
+#| 
 # weekly coho jack 
 jack_week <- fish_ts |> 
   filter(type == "jack_coho") |>
@@ -109,7 +119,7 @@ jack_week <- fish_ts |>
 jack_season <- jack_week|>
   gg_season(y = weekly_count) +
   geom_line() +
-  labs(x = "Month", y = "Weekly Average Count", title= "Jack Coho salmon") +
+  labs(x = "Month", y = "", title= "Jack Coho salmon") +
   theme_minimal() +
   theme(legend.position = "none") 
 
@@ -125,7 +135,7 @@ coho_week <- fish_ts |>
 coho_season <- coho_week|>
   gg_season(y = weekly_count) +
   geom_line() +
-  labs(x = "Month", y = "Weekly Average Count", title = "Coho salmon") +
+  labs(x = "Month", y = "Weekly Count", title = "Coho salmon") +
   theme_minimal()
 
 #do the same for steelhead
@@ -136,23 +146,51 @@ steelhead_week <- fish_ts |>
       ungroup() 
 
 #plots seasonal average across year
-steelhead_season <- steelhead_week|>
+steelhead_season <- steelhead_week |>
   gg_season(y = weekly_count) +
-  geom_line() +
-  labs(x = "Month", y = "Weekly Average Count", title = "Steelhead trout") +
+  geom_line() + 
+  labs(x = "Month", y = "", title = "Steelhead trout") +
   theme_minimal() +
-    theme(legend.position = "none") 
+  theme(legend.position = "none")
 
 patch <- jack_season/coho_season/steelhead_season
 
 print(patch)
 ```
 
+### Explanation of trends
+
+-   There is much more variation in weekly Steelhead trout abundance compared with jack Coho and Coho salmon in the first half of the year. Steelhead trout tend to maintain higher abundances for a larger portion of the year compared with the Coho salmon types. This trend may be explained by the fact that Coho salmon must leave the river when they reach maturity and the don't return until it is time for them to breed. Steelhead on the other hand, do not have to leave the river at any particular time. In fact, a Steelhead that remains in the river its whole life is effectively what we call a Rainbow trout.
+
+-   Steelhead and Coho, are their reproduction strategy. Salmon reproduce only once and only make 1 journey to the ocean before returning back to spawn. After salmon spawn, they die. Steelhead are able to go back and forth from the ocean, and can breed more than once. The larger abundance of Steelhead could be explained by this unique life history strategy.
+
+-   This data was collected at a "fish ladder," in Willamette Falls. This is important to note because fish ladders are a type of fish passages used to aid in the migration of anadromous fishes like Coho and Steelhead. Salmon (like Coho) have certain seasons where the "run" from river to ocean, or ocean to river. The spike in observations of both types of Coho salmon likely corresponds with the Salmon run season which occurs in the fall for Coho salmon.
+
 ## Annual Counts
 
-create graph that shows the count of fish by type per each year of observation.
+In order to observe how fish abundances for jack Coho, Coho, and Steelhead are changing overtime, we will plot their abundance for each year across the 10 years of the study. We will use a stacked bar graph to illustrate these trends. \
 
 ```{r}
+#| fig-cap: "Fig. 3 - Annual abundances for adult jack Coho salmon, Coho salmon, and Steelhead trout observed in the Columbia River Basin across study years."
+#| 
+#create a dataframe with salmon type, yearly count, and year
+fish_year <- fish_ts |> 
+  group_by(type) |>  #Group by 'type' before summarizing
+  index_by(year = ~year(.)) |> #get time series data by year (10 years)
+  summarize(yearly_count = mean(count, na.rm = TRUE)) |> #create yearly count column
+  ungroup()
 
+#create bar graph of abundance by year colored by 'type'
+fish_year_abundance <- ggplot(fish_year, aes(x = year, y = yearly_count, fill = type)) +
+  geom_col() +
+  labs(x = "Year", y = "Yearly Average Count", title = "Salmon Abundance by Year and Type") +
+  scale_x_continuous(breaks = seq(min(fish_year$year), max(fish_year$year), by = 1)) + #continuous x-axis
+  theme_minimal() 
+  
+  fish_year_abundance
 
 ```
+
+### Explanation of trends
+
+-   
