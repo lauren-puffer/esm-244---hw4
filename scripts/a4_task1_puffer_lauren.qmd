@@ -18,7 +18,7 @@ theme: journal
 
 With this analysis, we aim to assess possible temporal trends of Coho salmon, jack Coho salmon, and Steelhead trout in the Columbia River Basin. Our analysis will use a simple data manipulation in the 'lubridate' package for compatibility with visualization tools. We will then explore patterns in seasonality and overall trends, as well as compare fish counts by month using 'ggsubseries.'
 
-### *insert photo here*
+### [![Male Coho Salmon (courtesy of California Sea Grant)](images/cohomale1.jpg)](https://caseagrant.ucsd.edu/russian-river-salmon-steelhead/russian-river-learning-center/salmonid-identification)
 
 ### Data citation
 
