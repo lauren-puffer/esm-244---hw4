@@ -96,7 +96,7 @@ print(lesbar)
 
 ```
 
-With the top three words being "women," "attraction," and "lesbian," it seems that the actual content of this masterdoc is focused more on the attraction that one feels towards women, rather than the discomfort one feels in a heterosexual relationship.
+With the top three words being "women," "attraction," and "lesbian," it seems that the actual content of this masterdoc is focused more on the attraction that one feels towards women, rather than the discomfort a lesbian would feel when confronted with the idea of a heterosexual relationship.
 
 ### Contrast with Table of Contents
 
@@ -175,7 +175,7 @@ print(lesbing_plot)
 
 ```
 
-The amount of negative words increased significantly on page 14. This page begins a subsection called "S\*x and Intimacy with men." I believe the reason for the negative sentiment score on this page is that the author is describing why none of these things appeal to her. This is likely because the author is a lesbian. This is one of the instances where the masterdoc becomes more about an aversion to heterosexuality rather than an attraction to women, which again are both valid.
+The amount of negative words increased significantly on page 14. This page begins a subsection called "S\*x and Intimacy with men." I believe the reason for the negative sentiment score on this page is that the author is describing why none of these things appeal to her. This is likely because the author is a lesbian. This is one of the instances where the masterdoc becomes more about the author's aversion to being in a heterosexual relationship rather than their attraction to women, which again are both valid.
 
 ## Discussion
 

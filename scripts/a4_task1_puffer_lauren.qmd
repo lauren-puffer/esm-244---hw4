@@ -18,11 +18,9 @@ theme: journal
 
 With this analysis, we aim to assess possible temporal trends of Coho salmon, jack Coho salmon, and Steelhead trout in the Columbia River Basin. Our analysis will use a simple data manipulation in the 'lubridate' package for compatibility with visualization tools. We will then explore patterns in seasonality and overall trends, as well as compare fish counts by month using 'ggsubseries.'
 
-### [![Male Coho Salmon (courtesy of California Sea Grant)](images/cohomale1.jpg)](https://caseagrant.ucsd.edu/russian-river-salmon-steelhead/russian-river-learning-center/salmonid-identification)
+![Male Coho salmon in breeding colors](images/cohomale1-01.jpg)
 
 [Male Coho salmon (courtesy of CA Sea Grant)](https://caseagrant.ucsd.edu/russian-river-salmon-steelhead/russian-river-learning-center/salmonid-identification)
-
-### Data citation {#Male Coho salmon (Courtesy of CA Sea Grant)}
 
 Data were shared by and accessed from [Columbia River DART](http://www.cbr.washington.edu/dart/query/adult_graph_text) (Data Access in Real Time), accessed January 25, 2023. This data comes from a collaboration of 8 entities monitoring fish populations in the Columbia Basin. Fish counts for 9 species and water temperature is recorded daily.
 
@@ -88,9 +86,10 @@ ggplot(data = fish_ts,
   labs(x = "Date", 
        y = "Daily Counts",
        title = "Daily Counts by Type") +
-  scale_color_manual(values = c("steelhead" = "goldenrod1", 
-                                "jack_coho" = "deeppink3", 
-                                "coho" = "chartreuse3")) +  # Custom colors
+  scale_color_manual(values = c("steelhead" = "deepskyblue3", 
+                                "jack_coho" = "deeppink2", 
+                                "coho" = "chartreuse3")) + 
+    scale_x_date(date_breaks = "1 year", date_labels = "%Y") +
   theme_classic()
 
 ```
@@ -153,7 +152,7 @@ steelhead_season <- steelhead_week |>
   geom_line() + 
   labs(x = "Month", y = "", title = "Steelhead trout") +
   theme_minimal() +
-  theme(legend.position = "none")
+  theme(legend.position = "none") 
 
 patch <- jack_season/coho_season/steelhead_season
 
@@ -184,9 +183,10 @@ fish_year <- fish_ts |>
 
 #create bar graph of abundance by year colored by 'type'
 fish_year_abundance <- ggplot(fish_year, aes(x = year, y = yearly_count, fill = type)) +
-  geom_col() +
+  geom_col(stat = "identity") +
   labs(x = "Year", y = "Yearly Average Count", title = "Salmon Abundance by Year and Type") +
   scale_x_continuous(breaks = seq(min(fish_year$year), max(fish_year$year), by = 1)) + #continuous x-axis
+  scale_fill_manual(values = c("chartreuse3", "deeppink3", "deepskyblue3"))+
   theme_minimal() 
   
   fish_year_abundance
