@@ -14,20 +14,169 @@ theme: journal
 
 ## Overview
 
-***\*image here***
+### Purpose of text analysis
 
-### Purpose of analysis
+By conducting a word count and sentiment analysis with the character data taken from the viral "Am I A Lesbian - Masterdoc," I aim to detail the unique perspective of this author and observe the conclusions they draw based on the words they use, how often they are used, and whether or not they are associated with positive or negative sentiments. The AIAL masterdoc, originally a Google Doc shared on Tumblr by the user Cyberlesbian in 2018, has since been republished across various platforms as a PDF and continues to circulate the internet. Thousands of young people read this document when it was first posted, motivated by self-discovery, entertainment, and curiosity. Based on the most commonly used words, we will infer whether the conclusions drawn in this document are more rooted in the author's aversion to being in a heterosexual relationship or their attraction to women. I must mention that the author of this document is a lesbian, and the conclusions they draw as to what makes someone a lesbian are based on their opinion.
 
-### Pseudocode
+![](images/am-i-a-lesbian-01.png){courtesy of Sarah Chuang of The Michigan Daily: <https://www.michigandaily.com/statement/the-lesbian-master-doc-not-just-for-lesbians/>}
 
-### Data citation
+### Citation
+
+Lux, A. (2018, January). *Am I A Lesbian*. tumblr. <https://www.docdroid.net/N46Ea3o/copy-of-am-i-a-lesbian-masterdoc-pdf>
 
 ## Load packages
 
+```{r}
+library(tidyverse)
+library(tidytext) #allows us to clean up text data
+library(pdftools) #allows us to bring in pdf of masterdoc
+library(ggwordcloud) #allows us to make a word cloud visualization
+library(textdata)
+library(here) #for file management
+```
+
 ## Data wrangling
+
+```{r}
+#bring in text data
+lesbian_text <- pdf_text(here('pdf', 'Am I a Lesbian_ Masterdoc.pdf'))
+
+#each row is a page of the pdf and there are 31 pages making 31 rows
+
+#split the data into stanzas
+lesbian_lines <- data.frame(lesbian_text) |> 
+  mutate(page = 1:n()) |>
+  mutate(text_full = str_split(lesbian_text, pattern = '\\n')) |>
+  unnest(text_full) |>
+  mutate(text_full = str_trim(text_full)) |>
+  select(page, text_full)
+
+#now we have a dataframe with page # and text
+```
+
+### Extracting "tokens"
+
+Extracting tokens means pulling only words from the document. In order to get tokens, we must do some data wrangling with the stringr package.
+
+```{r}
+#extract only the tokens from the lesbian text file
+lesbian_words <- lesbian_lines |> 
+  unnest_tokens(word, text_full) 
+
+#get a count of all words in the document
+wordcount <- lesbian_words |> 
+  count(word)
+
+#we want to get rid of filler or "stop words" by using antijoin()
+lesbian_clean <- wordcount |> 
+  filter(word != "page") |> #remove the word 'page'
+  filter(!str_detect(word, "[^[:alnum:]']")) |>
+  anti_join(stop_words, by = 'word') 
+```
 
 ## Most freq. used words
 
-## Sentiment of words
+To see what the primary content of this document consists of, we have extracted the top 20 words and plotted them with the word count.
+
+```{r}
+#| fig-cap: "Fig. 1 - The 20 most used words in the Am I A Lesbian (AIAL) Masterdoc in descending order."
+
+#get the 20 most used words
+top_20_words <- lesbian_clean |>
+  arrange(-n) |>
+  slice(1:20) 
+
+#bar graph with most freq used owrds
+lesbar <- ggplot(data = top_20_words, aes(x = n, y = reorder(word, -n))) +
+  geom_col( fill = "deeppink3")+
+  labs(x = "Word Count", y = "Word", title = "Top Words in AIAL Masterdoc") +
+  theme_classic()
+  
+print(lesbar)
+
+```
+
+With the top three words being "women," "attraction," and "lesbian," it seems that the actual content of this masterdoc is focused more on the attraction that one feels towards women, rather than the discomfort one feels in a heterosexual relationship.
+
+### Contrast with Table of Contents
+
+The table of contents of this masterdoc tells a different story from the words represented in the entire document. To illustrate this, we will make another bar chart with the top 5 words mentioned in the table of contents on the first page.
+
+```{r}
+#| fig-cap: "Fig. 2 - The 5 most used words in the Am I A Lesbian (AIAL) Masterdoc table of contents in descending order."
+
+#'men' is listed as a stop word, so we must change that first
+stop_words_custom <- stop_words |> 
+  filter(word != "men")
+
+
+#get just words on the first page 
+page1_words <- lesbian_lines|>
+  filter(page == 1)|>
+  unnest_tokens(word, text_full) |> #only extract words
+    anti_join(stop_words_custom, by = 'word') #do away with stop words
+
+#get top 5 words
+page1_top5 <- page1_words |> 
+  count(word)|>
+  arrange(-n) |>
+  slice(1:5) 
+
+#plot the top 5
+toc_bar <- ggplot(data = page1_top5, aes(x = n, y = reorder(word, -n))) +
+  geom_col( fill = "deeppink3")+
+  labs(x = "Word Count", y = "Word", title = "Top Words in Table of Contents") +
+  theme_classic()
+  
+print(toc_bar)
+
+```
+
+As we can see, the top word in the table of contents was actually "men" despite this being a document intended to help the reader determine whether or not they are a lesbian. The table of contents seems to promise discussions of something called 'compulsory heterosexuality' and the readers feelings towards men. This mention of men I believe, is used in comparison with the feelings the reader may have about women.
+
+## Sentiment analysis
+
+To asses the tone of the author and the sentiment behind each of the words used, we will conduct a sentiment analysis. We will use the bing lexicon to identify sentiment associated with each word. This will tell us if a word is positive or negative. This association will not leave much room for interpretation, but it will make for an interesting comparison. We will be examining how the sentiment of the document changes from beginning to end.
+
+```{r}
+#| fig-cap: "Fig. 3 - Sentiment scores of AIAL masterdoc based on number of positive minus number of negative words per page."
+
+#bring in bing lexicon
+bing <- get_sentiments(lexicon = "bing")
+
+#get data in order
+lesbian_sentiment <- lesbian_words |> 
+  mutate(id = row_number()) |>
+    anti_join(stop_words, by = 'word') |>
+  arrange(id) |>  
+  select(-id) 
+
+#get bing associations for each word
+lesbing <- lesbian_sentiment |> 
+  inner_join(bing, by = 'word')
+
+#counts of bing
+lesbing_count <- lesbing |>
+  count(page,sentiment)
+
+#group by page and plot
+lesbing_plot <- lesbing_count |> 
+  group_by(page, sentiment) |> #group by page and sentiment type
+  summarize(sentiment_count = sum(n), .groups = "drop") |>#summarize counts by sentiment
+  spread(sentiment, sentiment_count, fill = 0) |> 
+  mutate(sentiment_score = positive - negative) |>  #calculate sentiment score
+  ggplot(aes(page, sentiment_score, fill = sentiment_score)) +  
+  geom_col(show.legend = FALSE) +  
+  labs(x = "Page Number", y = "Sentiment Score") +
+  scale_fill_gradient2(low = "deeppink3", mid = "coral3", high = "goldenrod2", midpoint = 0)+
+  theme_classic()
+
+print(lesbing_plot)
+
+```
+
+The amount of negative words increased significantly on page 14. This page begins a subsection called "S\*x and Intimacy with men." I believe the reason for the negative sentiment score on this page is that the author is describing why none of these things appeal to her. This is likely because the author is a lesbian. This is one of the instances where the masterdoc becomes more about an aversion to heterosexuality rather than an attraction to women, which again are both valid.
 
 ## Discussion
+
+Anjeli Lux (AKA Cyberlesbian) stirred the world wide web with their detailed analysis of what they believed made someone a lesbian. Anjeli certainly did a lot of generalizing, which was no doubt harmful in hindsight, but this masterdoc is regarded with humor and nostalgia by those who read it 7 years ago. People still read this document, although it doesn't receive quite the amount of attention it did in 2018. This document spurred interesting conversations between tumblr users of the time about sexuality, preference, and identity, but the strong opinions illustrated in this document have no real evidence to ground them that isn't anecdotal. Much of the criticism of this masterdoc involves Anjeli's take on heterosexual experiences, their tendency to impose their opinions, and their oversimplification of the dynamics and experiences that govern human sexuality. **Ultimately, this document is only representative of Anjeli's experiences and there are no set of attributes that make any one person more or less of a lesbian aside from their own preferences.** Further qualitative analysis with survey data could be conducted to compare the experiences of other lesbian identifying individuals with Anjeli's and get their opinions on this masterdoc.

@@ -170,7 +170,7 @@ print(patch)
 
 ## Annual Counts
 
-In order to observe how fish abundances for jack Coho, Coho, and Steelhead are changing over time, we will plot their abundance for each year across the 10 years of the study. We will use a stacked bar graph to illustrate these trends. \
+In order to observe how fish abundances for jack Coho, Coho, and Steelhead are changing over time, we will plot their abundance for each year across the 10 years of the study. We will use a stacked bar graph to illustrate these trends.\
 
 ```{r}
 #| fig-cap: "Fig. 3 - Annual abundances for adult jack Coho salmon, Coho salmon, and Steelhead trout observed in the Columbia River Basin across study years."
