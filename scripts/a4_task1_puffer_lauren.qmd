@@ -12,17 +12,19 @@ toc: TRUE
 theme: journal
 ---
 
-# Overview
+## Overview
 
 ### Purpose of Analysis
 
-With this analysis, we aim to assess possible temporal trends of Coho salmon, jack Coho salmon, and Steelhead trout in the Columbia River Basin. Our analysis will use a simple data manipulation in the 'lubridate' package for compatibility with visualization tools. We will then explore patterns in seasonality and overall trends, as well as compare fish counts by month using 'ggsubseries.'
+With this analysis, we aim to assess possible temporal trends of Coho salmon, jack Coho salmon, and Steelhead trout in the Columbia River Basin. Our analysis will use time series data and daily fish counts gathered from the Columbia River DART to make visualizations and explore patterns in seasonality and overall trends, as well as compare temporal abundances across years for each fish type.
 
 ![Male Coho salmon in breeding colors](images/cohomale1-01.jpg)
 
 [Male Coho salmon (courtesy of CA Sea Grant)](https://caseagrant.ucsd.edu/russian-river-salmon-steelhead/russian-river-learning-center/salmonid-identification)
 
-Data were shared by and accessed from [Columbia River DART](http://www.cbr.washington.edu/dart/query/adult_graph_text) (Data Access in Real Time), accessed January 25, 2023. This data comes from a collaboration of 8 entities monitoring fish populations in the Columbia Basin. Fish counts for 9 species and water temperature is recorded daily.
+### Data citation
+
+Data were shared by and accessed from [Columbia River DART](http://www.cbr.washington.edu/dart/query/adult_graph_text) (Data Access in Real Time), accessed January 25, 2023. This data comes from a collaboration of 8 entities monitoring fish populations in the Columbia Basin. Fish counts for 9 species and water temperature are recorded daily.
 
 ### Pseudocode
 
@@ -199,7 +201,7 @@ fish_year_abundance <- ggplot(fish_year, aes(x = year, y = yearly_count, fill = 
 
 -   When Coho abundances are higher, so are jack Coho Salmon abundances. This pattern appears to be proportional. Given that jack Coho numbers shouldn't be higher than regular Coho, it makes sense that there are almost no jacks in the years that saw lower Coho abundance.
 
--   It is possible that Steelhead trout exhibit a cyclical pattern across year that we cannot see given the discrete amount of time that this data was collected within. The large swings in abundance between year do not show any obvious trend, but LTER could reveal different pattern that occur over a larger time scale than one decade.
+-   Steelhead trout may exhibit a cyclical pattern across year that we cannot see given the discrete amount of time that this data was collected within. The large swings in abundance between year do not show any obvious trend, but LTER could reveal different patterns that occur over a larger time scale than one decade.
 
 ## Discussion
 
