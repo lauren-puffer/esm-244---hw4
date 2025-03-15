@@ -24,13 +24,24 @@ By conducting a word count and sentiment analysis with the character data taken 
 
 Lux, A. (2018, January). *Am I A Lesbian*. tumblr. <https://www.docdroid.net/N46Ea3o/copy-of-am-i-a-lesbian-masterdoc-pdf>
 
-## Load packages
+### Pseudocode
+
+1.  Bring in pdf of "Am I a Lesbian\_ Masterdoc"
+2.  Mutate the data to observed individual lines in the document
+3.  Extract tokens (individual words)
+4.  Get rid of "stop words" and extract word count
+5.  Find the top 20 most used words in the entire doc
+    -   repeat for just the Table of Contents
+6.  Get sentiments of words using "bing" lexicon for positive/negative classification
+7.  Put words and their sentiments in order and group by page number.
+8.  Give pages a sentiment score (positive - negative) and plot sentiment scores to find the most negative or positive pages in the document.
+
+### Load packages
 
 ```{r}
 library(tidyverse)
 library(tidytext) #allows us to clean up text data
 library(pdftools) #allows us to bring in pdf of masterdoc
-library(ggwordcloud) #allows us to make a word cloud visualization
 library(textdata)
 library(here) #for file management
 ```
@@ -164,7 +175,7 @@ lesbing_plot <- lesbing_count |>
   group_by(page, sentiment) |> #group by page and sentiment type
   summarize(sentiment_count = sum(n), .groups = "drop") |>#summarize counts by sentiment
   spread(sentiment, sentiment_count, fill = 0) |> 
-  mutate(sentiment_score = positive - negative) |>  #calculate sentiment score
+  mutate(sentiment_score = positive - negative) |> #calculate sentiment score
   ggplot(aes(page, sentiment_score, fill = sentiment_score)) +  
   geom_col(show.legend = FALSE) +  
   labs(x = "Page Number", y = "Sentiment Score") +
