@@ -3089,10 +3089,12 @@ vertical-align: -.125em;
   <ul class="collapse">
   <li><a href="#purpose-of-text-analysis" id="toc-purpose-of-text-analysis" class="nav-link" data-scroll-target="#purpose-of-text-analysis">Purpose of text analysis</a></li>
   <li><a href="#citation" id="toc-citation" class="nav-link" data-scroll-target="#citation">Citation</a></li>
+  <li><a href="#pseudocode" id="toc-pseudocode" class="nav-link" data-scroll-target="#pseudocode">Pseudocode</a></li>
   </ul></li>
   <li><a href="#load-packages" id="toc-load-packages" class="nav-link" data-scroll-target="#load-packages">Load packages</a></li>
   <li><a href="#data-wrangling" id="toc-data-wrangling" class="nav-link" data-scroll-target="#data-wrangling">Data wrangling</a>
   <ul class="collapse">
+  <li><a href="#mutate-into-lines" id="toc-mutate-into-lines" class="nav-link" data-scroll-target="#mutate-into-lines">Mutate into lines</a></li>
   <li><a href="#extracting-tokens" id="toc-extracting-tokens" class="nav-link" data-scroll-target="#extracting-tokens">Extracting “tokens”</a></li>
   </ul></li>
   <li><a href="#most-freq.-used-words" id="toc-most-freq.-used-words" class="nav-link" data-scroll-target="#most-freq.-used-words">Most freq. used words</a>
@@ -3142,6 +3144,22 @@ vertical-align: -.125em;
 <h3 class="anchored" data-anchor-id="citation">Citation</h3>
 <p>Lux, A. (2018, January). <em>Am I A Lesbian</em>. tumblr. <a href="https://www.docdroid.net/N46Ea3o/copy-of-am-i-a-lesbian-masterdoc-pdf" class="uri">https://www.docdroid.net/N46Ea3o/copy-of-am-i-a-lesbian-masterdoc-pdf</a></p>
 </section>
+<section id="pseudocode" class="level3">
+<h3 class="anchored" data-anchor-id="pseudocode">Pseudocode</h3>
+<ol type="1">
+<li>Bring in pdf of “Am I a Lesbian_ Masterdoc”</li>
+<li>Mutate the data to individual lines in the document</li>
+<li>Extract tokens (individual words)</li>
+<li>Get rid of “stop words” and extract word count</li>
+<li>Find the top 20 most used words in the entire doc
+<ul>
+<li>repeat for just the Table of Contents</li>
+</ul></li>
+<li>Get sentiments of words using “bing” lexicon for positive/negative classification</li>
+<li>Put words and their sentiments in order and group by page number.</li>
+<li>Give pages a sentiment score (positive - negative) and plot sentiment scores to find the most negative or positive pages in the document.</li>
+</ol>
+</section>
 </section>
 <section id="load-packages" class="level2">
 <h2 class="anchored" data-anchor-id="load-packages">Load packages</h2>
@@ -3151,14 +3169,16 @@ vertical-align: -.125em;
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidytext) <span class="co">#allows us to clean up text data</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pdftools) <span class="co">#allows us to bring in pdf of masterdoc</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggwordcloud) <span class="co">#allows us to make a word cloud visualization</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(textdata)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here) <span class="co">#for file management</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(textdata)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here) <span class="co">#for file management</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
 <section id="data-wrangling" class="level2">
 <h2 class="anchored" data-anchor-id="data-wrangling">Data wrangling</h2>
+<section id="mutate-into-lines" class="level3">
+<h3 class="anchored" data-anchor-id="mutate-into-lines">Mutate into lines</h3>
+<p>In order to analyze each word in this document, we must first break it up line by line and unnest the text and trim the string data.</p>
 <div class="cell">
 <details open class="code-fold">
 <summary>Code</summary>
@@ -3178,6 +3198,7 @@ vertical-align: -.125em;
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">#now we have a dataframe with page # and text</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
+</section>
 <section id="extracting-tokens" class="level3">
 <h3 class="anchored" data-anchor-id="extracting-tokens">Extracting “tokens”</h3>
 <p>Extracting tokens means pulling only words from the document. In order to get tokens, we must do some data wrangling with the stringr package.</p>
@@ -3186,7 +3207,7 @@ vertical-align: -.125em;
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#extract only the tokens from the lesbian text file</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>lesbian_words <span class="ot">&lt;-</span> lesbian_lines <span class="sc">|&gt;</span> </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(word, text_full) </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(word, text_full) <span class="co">#get each word</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#get a count of all words in the document</span></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>wordcount <span class="ot">&lt;-</span> lesbian_words <span class="sc">|&gt;</span> </span>
@@ -3195,7 +3216,7 @@ vertical-align: -.125em;
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#we want to get rid of filler or &quot;stop words&quot; by using antijoin()</span></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>lesbian_clean <span class="ot">&lt;-</span> wordcount <span class="sc">|&gt;</span> </span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(word <span class="sc">!=</span> <span class="st">&quot;page&quot;</span>) <span class="sc">|&gt;</span> <span class="co">#remove the word &#39;page&#39;</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">str_detect</span>(word, <span class="st">&quot;[^[:alnum:]&#39;]&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">str_detect</span>(word, <span class="st">&quot;[^[:alnum:]&#39;]&quot;</span>)) <span class="sc">|&gt;</span> <span class="co">#only keep alphanumerics</span></span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anti_join</span>(stop_words, <span class="at">by =</span> <span class="st">&#39;word&#39;</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
@@ -3302,7 +3323,7 @@ vertical-align: -.125em;
 <span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(page, sentiment) <span class="sc">|&gt;</span> <span class="co">#group by page and sentiment type</span></span>
 <span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">sentiment_count =</span> <span class="fu">sum</span>(n), <span class="at">.groups =</span> <span class="st">&quot;drop&quot;</span>) <span class="sc">|&gt;</span><span class="co">#summarize counts by sentiment</span></span>
 <span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">spread</span>(sentiment, sentiment_count, <span class="at">fill =</span> <span class="dv">0</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sentiment_score =</span> positive <span class="sc">-</span> negative) <span class="sc">|&gt;</span>  <span class="co">#calculate sentiment score</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sentiment_score =</span> positive <span class="sc">-</span> negative) <span class="sc">|&gt;</span> <span class="co">#calculate sentiment score</span></span>
 <span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(page, sentiment_score, <span class="at">fill =</span> sentiment_score)) <span class="sc">+</span>  </span>
 <span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span>  </span>
 <span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Page Number&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Sentiment Score&quot;</span>) <span class="sc">+</span></span>

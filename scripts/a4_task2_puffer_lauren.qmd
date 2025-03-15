@@ -27,7 +27,7 @@ Lux, A. (2018, January). *Am I A Lesbian*. tumblr. <https://www.docdroid.net/N46
 ### Pseudocode
 
 1.  Bring in pdf of "Am I a Lesbian\_ Masterdoc"
-2.  Mutate the data to observed individual lines in the document
+2.  Mutate the data to individual lines in the document
 3.  Extract tokens (individual words)
 4.  Get rid of "stop words" and extract word count
 5.  Find the top 20 most used words in the entire doc
@@ -36,7 +36,7 @@ Lux, A. (2018, January). *Am I A Lesbian*. tumblr. <https://www.docdroid.net/N46
 7.  Put words and their sentiments in order and group by page number.
 8.  Give pages a sentiment score (positive - negative) and plot sentiment scores to find the most negative or positive pages in the document.
 
-### Load packages
+## Load packages
 
 ```{r}
 library(tidyverse)
@@ -47,6 +47,10 @@ library(here) #for file management
 ```
 
 ## Data wrangling
+
+### Mutate into lines
+
+In order to analyze each word in this document, we must first break it up line by line and unnest the text and trim the string data.
 
 ```{r}
 #bring in text data
@@ -72,7 +76,7 @@ Extracting tokens means pulling only words from the document. In order to get to
 ```{r}
 #extract only the tokens from the lesbian text file
 lesbian_words <- lesbian_lines |> 
-  unnest_tokens(word, text_full) 
+  unnest_tokens(word, text_full) #get each word
 
 #get a count of all words in the document
 wordcount <- lesbian_words |> 
@@ -81,7 +85,7 @@ wordcount <- lesbian_words |>
 #we want to get rid of filler or "stop words" by using antijoin()
 lesbian_clean <- wordcount |> 
   filter(word != "page") |> #remove the word 'page'
-  filter(!str_detect(word, "[^[:alnum:]']")) |>
+  filter(!str_detect(word, "[^[:alnum:]']")) |> #only keep alphanumerics
   anti_join(stop_words, by = 'word') 
 ```
 
